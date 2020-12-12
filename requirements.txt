@@ -1,1 +1,2 @@
 Flask-RESTful
+Flask-JWT
