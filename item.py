@@ -74,7 +74,7 @@ class Item(Resource):
         data = Item.parser.parse_args()
         item = self.find_by_name(name)
         updated_item = {"name": name, "price": data["price"]}
-        if not item:
+        if item is None:
             try:
                 self.insert(updated_item)
             except:
@@ -90,14 +90,27 @@ class Item(Resource):
     def update(cls, item):
         connection = sqlite3.connect("data.db")
         cursor = connection.cursor()
-
-        query = "UPDATE items SET price=? WHERE name=?;"
-        cursor.execute(query, (item["price"], item["name"]))
+    
+        query = "UPDATE items SET price=? WHERE name=?"
+        cursor.execute(query, (item["name"], item["price"]))
         
         connection.commit()
         connection.close()
-        return {"message": f"Item with name {name} deleted"}
+        return {"message": f"Item with name {name} updated"}
 
 class ItemList(Resource):
     def get(self):
+        connection = sqlite3.connect("data.db")
+        cursor = connection.cursor()
+
+        query = "SELECT * FROM items"
+        result = cursor.execute(query)
+        items = []
+        for row in result:
+            items.append({
+                "name": row[0],
+                "price": row[1]
+            })
+        connection.close()
+
         return {"items": items}
